@@ -1,0 +1,19 @@
+# Template information section
+name: vtb_di
+summary: This template include DIContainer and TransitionHandler files. DIContainer - Swinject container setup. TransitionHandler - routing between VIPER vtb_viper modules
+author: Alexey Parkhomenko
+version: 1.0.0
+license: 
+
+# The declarations for code files
+code_files:
+
+- {name: DependencyInjection/DIContainer.swift,  path: Code/DependencyInjection/container.swift.liquid}
+- {name: TransitionHandler.swift, path: Code/transitionHandler.swift.liquid}
+
+# The declarations for test files
+test_files:
+
+# Template dependencies
+dependencies:
+- Swinject

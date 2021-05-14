@@ -1,0 +1,95 @@
+//
+//  {{ prefix }}{{ module_info.name }}{{ module_info.file_name }}
+//  {{ module_info.project_name }}
+//
+//  Created by {{ developer.name }} on {{ date }}.
+//  Copyright © {{ year }} {{ developer.company }}. All rights reserved.
+//
+import Foundation
+import Swinject
+
+// You may delete module name from the name of this file
+
+final class DIContainer {
+    
+    static let shared = DIContainer()
+    
+    let container: Container = Container()
+    
+    func configure<Configurator>(assembly: Configurator.Type, inChild: Bool = false) -> Container where Configurator: NSObject & Assembly {
+        return container.configure(assembly: assembly, inChild: inChild)
+    }
+    
+    func resolve<T>() -> T {
+        guard let resolvedType = container.resolve(T.self) else {
+            fatalError()
+        }
+        return resolvedType
+    }
+    
+    func resolve<T>(registrationName: String?) -> T {
+        guard let resolvedType = container.resolve(T.self, name: registrationName) else {
+            fatalError()
+        }
+        return resolvedType
+    }
+    
+    func resolve<T, Arg>(argument: Arg) -> T {
+        guard let resolvedType = container.resolve(T.self, argument: argument) else {
+            fatalError()
+        }
+        return resolvedType
+    }
+    
+    func resolve<T, Arg1, Arg2>(arguments arg1: Arg1, _ arg2: Arg2) -> T {
+        guard let resolvedType = container.resolve(T.self, arguments: arg1, arg2) else {
+            fatalError()
+        }
+        return resolvedType
+    }
+    
+    func resolve<T, Arg>(name: String?, argument: Arg) -> T {
+        guard let resolvedType = container.resolve(T.self, name: name, argument: argument) else {
+            fatalError()
+        }
+        return resolvedType
+    }
+    
+    func resolve<T, Arg1, Arg2>(name: String?, arguments arg1: Arg1, _ arg2: Arg2) -> T {
+        guard let resolvedType = container.resolve(T.self, name: name, arguments: arg1, arg2) else {
+            fatalError()
+        }
+        return resolvedType
+    }
+}
+
+extension Container {
+    
+    func register<T>(_ item: T) {
+        self.register(T.self) { (resolver) in
+            return item
+        }.inObjectScope(.container)
+    }
+    
+    func register<T, U>(_ item: T, type: U.Type) {
+        if let item = item as? U {
+            self.register(type.self) { resolver in
+                return item
+            }.inObjectScope(.container)
+        } else {
+            fatalError()
+        }
+    }
+    
+    @discardableResult func configure<Configurator>(assembly _: Configurator.Type, inChild: Bool = false) -> Container where Configurator: NSObject & Assembly {
+        let configurator = Configurator()
+        if inChild {
+            let childContainer = Container()
+            configurator.assemble(container: childContainer)
+            return childContainer
+        } else {
+            configurator.assemble(container: self)
+            return self
+        }
+    }
+}

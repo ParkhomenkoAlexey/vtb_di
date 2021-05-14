@@ -1,0 +1,46 @@
+//
+//  {{ prefix }}{{ module_info.name }}{{ module_info.file_name }}
+//  {{ module_info.project_name }}
+//
+//  Created by {{ developer.name }} on {{ date }}.
+//  Copyright © {{ year }} {{ developer.company }}. All rights reserved.
+//
+
+import UIKit
+
+// You may delete module name from the name of this file
+// You should put this file in your "Helpers" folder
+
+protocol TransitionHandlerProtocol {
+    func pushTransition<T, U, Y>(from controller: UIViewController, to: T.Type, presenter: U.Type, moduleInput: Y.Type, callback: (Y) -> Void)
+    func presentTransition<T, U, Y>(from controller: UIViewController, to: T.Type, presenter: U.Type, moduleInput: Y.Type, callback: (Y) -> Void)
+    func dismissTransition<U, Y>(from controller: UIViewController, presenter: U.Type, moduleInput: Y.Type, callback: (Y) -> Void)
+    func dismissTransition(from controller: UIViewController)
+}
+
+class TransitionHandler: TransitionHandlerProtocol {
+    func dismissTransition(from controller: UIViewController) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+    
+    func dismissTransition<U, Y>(from controller: UIViewController, presenter: U.Type, moduleInput: Y.Type, callback: (Y) -> Void) {
+        let moduleInput = DIContainer.shared.container.resolve(presenter.self) as! Y
+        callback(moduleInput)
+        controller.dismiss(animated: true, completion: nil)
+    }
+    
+    func pushTransition<T, U, Y>(from controller: UIViewController, to: T.Type, presenter: U.Type, moduleInput: Y.Type, callback: (Y) -> Void) {
+        let vc = DIContainer.shared.container.resolve(to.self) as! UIViewController
+        let moduleInput = DIContainer.shared.container.resolve(presenter.self) as! Y
+        callback(moduleInput)
+        controller.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func presentTransition<T, U, Y>(from controller: UIViewController, to: T.Type, presenter: U.Type, moduleInput: Y.Type, callback: (Y) -> Void) {
+        let vc = DIContainer.shared.container.resolve(to.self) as! UIViewController
+        let moduleInput = DIContainer.shared.container.resolve(presenter.self) as! Y
+        callback(moduleInput)
+        vc.modalPresentationStyle = .overFullScreen
+        controller.present(vc, animated: true, completion: nil)
+    }
+}
